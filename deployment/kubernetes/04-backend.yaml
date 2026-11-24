@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biosprint-backend
+  namespace: biosprint-engine
+  labels:
+    app: biosprint-backend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: biosprint-backend
+  template:
+    metadata:
+      labels:
+        app: biosprint-backend
+    spec:
+      containers:
+        - name: backend
+          image: biosprint/backend:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: biosprint-config
+            - secretRef:
+                name: biosprint-secrets
+          volumeMounts:
+            - name: db-storage
+              mountPath: /app/data
+            - name: upload-storage
+              mountPath: /app/uploads
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: biosprint-data-pvc
+        - name: upload-storage
+          persistentVolumeClaim:
+            claimName: biosprint-uploads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: biosprint-backend-service
+  namespace: biosprint-engine
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: http
+  selector:
+    app: biosprint-backend

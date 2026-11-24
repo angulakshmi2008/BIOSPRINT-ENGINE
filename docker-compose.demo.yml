@@ -1,0 +1,48 @@
+services:
+  demo-backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: biosprint-demo-backend
+    restart: unless-stopped
+    command: ["node", "src/indexDemo.js"]
+    ports:
+      - "5001:5001"
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - JWT_SECRET=biosprint_demo_secret_jwt_key_evaluation_mode_2026
+      - DB_FILE=data/biosprint_demo.db
+      - UPLOADS_DIR=uploads
+      - CLIENT_ORIGIN=http://localhost:3001
+      - IS_DEMO_MODE=true
+    volumes:
+      - biosprint_demo_data:/app/data
+      - biosprint_demo_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  demo-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: biosprint-demo-frontend
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    environment:
+      - VITE_APP_MODE=demo
+      - VITE_API_URL=http://localhost:5001/api
+    depends_on:
+      demo-backend:
+        condition: service_healthy
+
+volumes:
+  biosprint_demo_data:
+    driver: local
+  biosprint_demo_uploads:
+    driver: local

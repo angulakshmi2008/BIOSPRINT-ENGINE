@@ -1,0 +1,27 @@
+{
+  "name": "biosprint-server",
+  "version": "1.0.0",
+  "description": "BioSprint Engine Backend REST API & Provenance Engine",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:demo": "node src/indexDemo.js",
+    "dev": "node src/index.js",
+    "dev:demo": "node src/indexDemo.js",
+    "migrate": "node src/db/migrate.js",
+    "seed": "node src/db/seed.js",
+    "seed:demo": "node src/db/seedDemo.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}
