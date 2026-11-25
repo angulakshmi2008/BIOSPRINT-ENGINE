@@ -145,14 +145,14 @@ export default function Settings() {
             </div>
             <p className="text-[11px] opacity-80 mt-0.5">
               {backendOnline
-                ? 'Connected to Express REST API (port 5000) with SQLite relational storage & streaming SHA-256'
+                ? 'Connected to Express REST API with SQLite relational storage & streaming SHA-256'
                 : 'Running in browser localStorage sandbox mode. Start backend with "cd server && npm start"'}
             </p>
           </div>
         </div>
         <div className="text-right">
           <span className="text-[11px] font-mono px-2.5 py-1 bg-white/70 rounded border border-slate-200 text-slate-700">
-            {backendOnline ? 'http://localhost:5000' : 'localStorage:biosprint'}
+            {backendOnline ? api.getApiBase().replace(/\/api$/, '') : 'localStorage:biosprint'}
           </span>
         </div>
       </div>

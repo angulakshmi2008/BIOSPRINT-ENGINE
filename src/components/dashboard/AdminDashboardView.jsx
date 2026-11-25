@@ -160,7 +160,7 @@ export default function AdminDashboardView({
         <StatCard
           title="Backend API Status"
           value={backendOnline ? 'Online' : 'Offline'}
-          subtitle={backendOnline ? 'Port 5000 Active' : 'LocalStorage Sandbox'}
+          subtitle={backendOnline ? 'REST API Active' : 'LocalStorage Sandbox'}
           icon={Server}
           color={backendOnline ? 'emerald' : 'amber'}
         />
@@ -282,7 +282,7 @@ export default function AdminDashboardView({
               <div className="p-2.5 rounded-lg border border-slate-100 bg-slate-50/70 flex items-center justify-between">
                 <div>
                   <span className="font-semibold text-navy-900 block">Express REST API Server</span>
-                  <span className="text-[11px] text-slate-500">Port 5000 • CORS Protected</span>
+                  <span className="text-[11px] text-slate-500">REST API • CORS Protected</span>
                 </div>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                   backendOnline

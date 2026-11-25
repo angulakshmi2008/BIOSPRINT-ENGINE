@@ -196,8 +196,8 @@ export function DataProvider({ children }) {
   useEffect(() => {
     async function checkBackend() {
       try {
-        const res = await fetch('http://localhost:5000/health');
-        if (res.ok) {
+        const isHealthy = await api.checkHealth();
+        if (isHealthy) {
           setBackendOnline(true);
           // Try loading live projects
           const projRes = await api.getProjects().catch(() => null);
@@ -207,6 +207,8 @@ export function DataProvider({ children }) {
               projects: projRes.data
             }));
           }
+        } else {
+          setBackendOnline(false);
         }
       } catch {
         setBackendOnline(false);

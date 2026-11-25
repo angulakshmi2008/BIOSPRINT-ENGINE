@@ -1,11 +1,36 @@
 // BioSprint Engine - API Client Service Layer
 // Connects to Node.js / Express backend with graceful offline fallback
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const normalizeApiBase = (raw) => {
+  if (!raw) return 'http://localhost:5000/api';
+  const trimmed = raw.trim().replace(/\/+$/, '');
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+const API_BASE = normalizeApiBase(rawApiUrl);
 
 class ApiService {
   constructor() {
     this.token = localStorage.getItem('biosprint_token') || null;
+  }
+
+  getApiBase() {
+    return API_BASE;
+  }
+
+  async checkHealth() {
+    const rootUrl = API_BASE.replace(/\/api$/, '');
+    try {
+      const res = await fetch(`${rootUrl}/health`);
+      return res.ok;
+    } catch {
+      try {
+        const res2 = await fetch(`${API_BASE}/health`);
+        return res2.ok;
+      } catch {
+        return false;
+      }
+    }
   }
 
   setToken(token) {

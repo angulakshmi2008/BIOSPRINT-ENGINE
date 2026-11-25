@@ -34,14 +34,44 @@ runMigrations();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
+
+// Dynamic CORS configuration allowing localhost, configured CLIENT_ORIGIN, and Vercel domains
+const rawClientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
+const configuredOrigins = rawClientOrigin
+  .split(',')
+  .map((o) => o.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const defaultAllowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+  'https://biosprint-engine.vercel.app'
+];
 
 // Security & Parsing Middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
+
 app.use(cors({
-  origin: [CLIENT_ORIGIN, 'http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: (origin, callback) => {
+    // Allow server-to-server, curl, mobile, or requests with no origin
+    if (!origin) return callback(null, true);
+
+    const normalizedOrigin = origin.replace(/\/+$/, '');
+    const isAllowed =
+      configuredOrigins.includes('*') ||
+      configuredOrigins.includes(normalizedOrigin) ||
+      defaultAllowedOrigins.includes(normalizedOrigin) ||
+      normalizedOrigin.endsWith('.vercel.app');
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS policy blocked access from origin: ${origin}`), false);
+  },
   credentials: true
 }));
 app.use(morgan('dev'));
@@ -51,8 +81,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Global Authentication filter (attaches user if token present)
 app.use(authenticateToken);
 
-// Health check endpoint for Docker & Kubernetes Probes
-app.get('/health', (req, res) => {
+// Health check endpoint for Cloud Probes (Docker, Render, Kubernetes, Frontend)
+app.get(['/health', '/api/health'], (req, res) => {
   res.json({
     status: 'healthy',
     service: 'BioSprint Engine API Server',
