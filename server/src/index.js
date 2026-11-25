@@ -121,12 +121,12 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`=======================================================`);
   console.log(`  BioSprint Engine REST API & Provenance Server       `);
-  console.log(`  Running on: http://localhost:${PORT}                 `);
-  console.log(`  Health Check: http://localhost:${PORT}/health        `);
-  console.log(`  Client Allowed Origin: ${CLIENT_ORIGIN}              `);
+  console.log(`  Running on: http://0.0.0.0:${PORT}                   `);
+  console.log(`  Health Check: http://0.0.0.0:${PORT}/health          `);
+  console.log(`  Client Allowed Origin: ${configuredOrigins.join(', ')} `);
   console.log(`=======================================================`);
 });
 
